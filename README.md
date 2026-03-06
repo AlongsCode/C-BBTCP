@@ -1,59 +1,84 @@
-BB Network Library (BB 库)
-BB Network Library 是一个基于 Windows 完成端口（IOCP）模型设计的高性能异步 TCP 网络通信库。它采用 C 语言编写，旨在为 Windows 开发者提供轻量、高效且易于集成的网络通信能力。
 
-核心特性
-高性能 IOCP 架构：利用 Windows 底层异步 IO 模型，支持大规模并发连接与高吞吐量数据传输。
+# ---
 
-异步回调机制：通过事件回调（Event Callback）处理连接、接收数据和断开连接，避免阻塞主线程。
+**🚀 BB Network Library (BB 库)**
 
-协议灵活：支持 TCP 协议，并内置对 SOCKS4、SOCKS5 及 HTTP 代理的支持，适用于复杂网络环境。
+**BB Network Library** 是一个高性能的 Windows IOCP 网络通信库，专为 C 语言开发者打造，旨在实现高并发场景下的高效异步通信。
 
-跨兼容性：统一采用宽字符（WCHAR）处理，确保在不同 Windows 区域设置下的稳定表现。
+## ---
 
-资源透明化：提供简洁的内存与字符串管理工具，保障内存使用的安全性。
+**🏗️ 架构概览**
 
-架构说明
-BB 库将逻辑分为两层，以降低系统耦合：
+本库采用 **分层解耦设计**，确保核心 IO 逻辑与业务层之间的清晰边界。
 
-公共层 (bb_server.h, bb_client.h)：为开发者提供简洁、稳定的 API 接口，不直接包含繁琐的 Windows 系统头文件。
+* **公共层 (Interface Layer)**：对外暴露稳定的 C API，隔离了复杂的 Windows 网络头文件污染。  
+* **实现层 (Internal Layer)**：处理 winsock2.h 状态机、IOCP 异步投递逻辑及资源自动管理。
 
-实现层 (bb_internal.h, bb_server.c, bb_client.c)：处理底层的 winsock2.h 与 IOCP 状态机，封装了复杂的网络 IO 逻辑。
+## ---
 
-快速入门
-1. 初始化
-在调用网络功能前，请先初始化库。可以将 threadCount 设置为 0，让库根据 CPU 核心数自动优化线程池大小。
+**🛠️ 核心特性**
+
+| 特性 | 描述 |
+| :---- | :---- |
+| **高性能 IOCP** | 利用 Windows 完成端口模型，支持成千上万的高并发连接。 |
+| **异步事件模型** | 采用回调机制，避免 UI 或主逻辑线程阻塞。 |
+| **多代理支持** | 原生支持 SOCKS4/SOCKS5 及 HTTP 代理，应对复杂网络。 |
+| **Unicode 兼容** | 全面使用 WCHAR，确保全球化语言环境的稳定性。 |
+| **内存安全** | 提供封装好的 BB\_Alloc/BB\_Free 内存工具，辅助防范泄漏。 |
+
+## ---
+
+**⚡ 快速入门**
+
+### **1\. 初始化 (Initialization)**
+
+初始化时可根据需要设定线程数，推荐设为 0 以启用自动核心数分配。
 
 C
 
-// 客户端初始化示例
-BB_Client_Load();
-BB_Client_Initialize(0); 
-2. 服务器实现 (示例片段)
-C
+// 客户端加载与启动  
+BB\_Client\_Load();  
+BB\_Client\_Initialize(0); 
 
-HBBSERVER server = BB_Server_Create(8080, AcceptCallback, RecvCallback, CloseCallback, NULL, 10, TRUE, TRUE, 4096, FALSE, 4096, 0);
-3. 事件回调
-通过 __stdcall 回调函数处理网络事件：
+### **2\. 服务器创建 (Server Lifecycle)**
+
+通过简洁的 API 快速实例化一个服务器监听：
 
 C
 
-void __stdcall RecvCallback(HBBSERVER server, HBBCCLIENT client, const char* data, ULONG size) {
-    // 处理接收到的数据
-    BB_Server_Send(client, data, size); // 回声示例
+HBBSERVER server \= BB\_Server\_Create(  
+    8080, AcceptCallback, RecvCallback, CloseCallback,   
+    NULL, 10, TRUE, TRUE, 4096, FALSE, 4096, 0  
+);
+
+### **3\. 事件回调处理 (Event Handling)**
+
+使用标准回调处理数据包接收：
+
+C
+
+void \_\_stdcall RecvCallback(HBBSERVER server, HBBCCLIENT client, const char\* data, ULONG size) {  
+    // 处理逻辑：例如回声服务  
+    BB\_Server\_Send(client, data, size);   
 }
-编译与环境要求
-操作系统：Windows Vista 或更高版本。
 
-工具链：支持 MSVC 的 IDE (Visual Studio)。
+## ---
 
-依赖库：ws2_32.lib, Crypt32.lib（已在内部通过 #pragma comment 自动引入）。
+**⚠️ 开发注意事项 (Best Practices)**
 
-注意事项
-内存释放：对于通过 BB_Server_GetClientIPW 或 BB_Client_GetUserString 获取的字符串，调用者必须使用 BB_Free 手动释放内存，否则会导致内存泄漏。
+1. **内存管理**：对于通过库接口（如 BB\_Server\_GetClientIPW）获取的字符串内存，**务必在用后调用 BB\_Free**，否则将引发内存泄漏。  
+2. **TCP 粘包与拆包**：TCP 是流式协议，回调可能收到不完整的数据。**强烈建议**在应用层增加自定义协议头（Header）来标记数据长度。  
+3. **并发资源管理**：由于本库会内部创建工作线程池，若宿主程序同时也拥有大规模计算任务，请注意 CPU 调度优先级。
 
-粘包处理：由于 TCP 是流式协议，目前库将接收到的原始字节流透传给回调函数。建议在应用层实现包头长度字段以解析完整的数据包。
+## ---
 
-线程模型：库内部创建的工作线程与宿主进程共享资源。在集成到大型框架时，请注意线程池的并发竞争情况。
+**📋 环境与依赖**
 
-许可证
-本项目遵循 MIT 协议
+* **OS**: Windows Vista 及以上  
+* **IDE**: Visual Studio (MSVC)  
+* **Dependencies**: ws2\_32.lib, Crypt32.lib (已通过代码自动链接)
+
+---
+
+**许可证**: 遵循 MIT 开源协议。
+
