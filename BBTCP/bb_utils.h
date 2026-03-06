@@ -1,62 +1,98 @@
 /**
- * @file bb_utils.h
- * @brief BB网络库工具函数
- * @version 2.0
+ * @file echo_client.c
+ * @brief 回声客户端示例
+ * @version 1.0
  * @date 2024
  */
 
-#ifndef BB_UTILS_H
-#define BB_UTILS_H
- 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
-#include "bb_common.h"
+#include <windows.h>
+#include "bb_client.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+ // 客户端事件回调函数
+void __stdcall ClientCallback(HBBCLIENT client, int eventType, const char* data, ULONG size) {
+    printf("回调类型: %d\n", eventType);
+    switch (eventType) {
+    case BB_EVENT_CONNECTED:
+        printf("[客户端] 连接服务器成功\n");
 
-    // ==================== 内存管理函数 ====================
+        // 连接成功后发送测试消息
+        {
+            const char* message = "Hello, Server!";
+            BB_Client_Send(client, message, (ULONG)strlen(message));
+            printf("[客户端] 发送消息: %s\n", message);
+        }
+        break;
 
-    /**
-     * @brief 分配并清零内存
-     * @param size 要分配的内存大小
-     * @return 成功返回内存指针，失败返回NULL
-     */
-    void* BB_Alloc(size_t size);
+    case BB_EVENT_DATA_RECEIVED:
+        printf("[客户端] 收到服务器回复: %.*s\n", size, data);
 
-    /**
-     * @brief 重新分配内存
-     * @param ptr 原内存指针
-     * @param new_size 新内存大小
-     * @return 成功返回新内存指针，失败返回NULL
-     */
-    void* BB_Realloc(void* ptr, size_t new_size);
+        // 收到回复后3秒关闭连接
+        //Sleep(3000);
+        //BB_Client_Close(client);
+        break;
 
-    /**
-     * @brief 释放内存（安全，可传入NULL）
-     * @param ptr 要释放的内存指针
-     */
-    void BB_Free(void* ptr);
-
-    /**
-     * @brief 释放字符串内存（与BB_Free相同，提供语义化接口）
-     * @param str 要释放的字符串指针
-     */
-    void BB_FreeString(void* str);
-
-    // ==================== 工具函数 ====================
-
-    /**
-     * @brief 获取高精度时间戳（64位，避免49天溢出问题）
-     * @return 当前时间戳（毫秒）
-     */
-    DWORD64 BB_GetTickCount64();
-
-#ifdef __cplusplus
+    case BB_EVENT_DISCONNECTED:
+        printf("[客户端] 连接已断开\n");
+        break;
+    }
 }
-#endif
 
-#endif // BB_UTILS_H
+int demo_clinet() {
+    printf("=== BB网络库回声客户端示例 ===\n");
+
+    // 1. 加载客户端库
+    if (!BB_Client_Load()) {
+        printf("错误: 无法加载客户端库\n");
+        return -1;
+    }
+    printf("[系统] 客户端库加载成功\n");
+
+    // 2. 初始化客户端
+    if (!BB_Client_Initialize(0)) {
+        printf("错误: 客户端初始化失败\n");
+        BB_Client_Cleanup();
+        return -1;
+    }
+    printf("[系统] 客户端初始化成功\n");
+
+    // 3. 连接服务器
+    printf("[客户端] 正在连接服务器 127.0.0.1:8080...\n");
+    HBBCLIENT client = BB_Client_Connect(
+        ClientCallback,     // 回调函数
+        L"127.0.0.1",      // 服务器IP
+        23461,              // 服务器端口
+        5000,              // 超时时间(毫秒)
+        4096,              // 缓冲区大小
+        0,                 // 最大数据包大小
+        BB_PROXY_NONE,     // 代理类型
+        NULL,              // 代理IP
+        0,                 // 代理端口
+        NULL,              // 代理账号
+        NULL,              // 代理密码
+        FALSE              // 不使用IPv6
+    );
+
+    if (client == NULL) {
+        printf("错误: 连接服务器失败\n");
+        BB_Client_Cleanup();
+        return -1;
+    }
+
+    printf("[系统] 连接请求已发送，等待回调...\n");
+
+    // 4. 等待操作完成
+    Sleep(10000);
+
+    // 5. 清理资源
+    BB_Client_Cleanup();
+    printf("[系统] 客户端已退出\n");
+
+    return 0;
+}
+
+int main() {
+	return demo_clinet();
+}
