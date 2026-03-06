@@ -1,41 +1,41 @@
 /**
  * @file bb_internal.h
- * @brief BBÍøÂç¿âÄÚ²¿Í·ÎÄ¼ş
+ * @brief BBç½‘ç»œåº“å†…éƒ¨å¤´æ–‡ä»¶
  * @version 2.0
  * @date 2024
  *
- * @note ´ËÍ·ÎÄ¼ş°üº¬ËùÓĞWindowsÍøÂçÍ·ÎÄ¼ş£¬½öÔÚÊµÏÖÎÄ¼şÖĞÊ¹ÓÃ
+ * @note æ­¤å¤´æ–‡ä»¶åŒ…å«æ‰€æœ‰Windowsç½‘ç»œå¤´æ–‡ä»¶ï¼Œä»…åœ¨å®ç°æ–‡ä»¶ä¸­ä½¿ç”¨
  */
 
 #ifndef BB_INTERNAL_H
 #define BB_INTERNAL_H
 
- // ¶¨Òå±ØÒªµÄºê
+ // å®šä¹‰å¿…è¦çš„å®
 #define WIN32_LEAN_AND_MEAN
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define NOMINMAX
 
-// °üº¬WindowsÍøÂçÍ·ÎÄ¼ş
+// åŒ…å«Windowsç½‘ç»œå¤´æ–‡ä»¶
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <mswsock.h>
 
-// Á´½Ó¿â
+// é“¾æ¥åº“
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Crypt32.lib")
 
-// ÉèÖÃWindows°æ±¾
+// è®¾ç½®Windowsç‰ˆæœ¬
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
 #endif
-#define _WIN32_WINNT 0x0600  // Ö§³ÖVista¼°ÒÔÉÏ°æ±¾
+#define _WIN32_WINNT 0x0600  // æ”¯æŒVistaåŠä»¥ä¸Šç‰ˆæœ¬
 
-// ==================== ÄÚ²¿ºê¶¨Òå ====================
+// ==================== å†…éƒ¨å®å®šä¹‰ ====================
 
 /**
- * @brief °²È«¹Ø±ÕÌ×½Ó×Ö
- * @param socket Òª¹Ø±ÕµÄÌ×½Ó×Ö
+ * @brief å®‰å…¨å…³é—­å¥—æ¥å­—
+ * @param socket è¦å…³é—­çš„å¥—æ¥å­—
  */
 #define BB_SAFE_CLOSE_SOCKET(socket) do { \
     if ((socket) != INVALID_SOCKET) { \
@@ -45,8 +45,8 @@
 } while(0)
 
  /**
-  * @brief °²È«¹Ø±Õ¾ä±ú
-  * @param handle Òª¹Ø±ÕµÄ¾ä±ú
+  * @brief å®‰å…¨å…³é—­å¥æŸ„
+  * @param handle è¦å…³é—­çš„å¥æŸ„
   */
 #define BB_SAFE_CLOSE_HANDLE(handle) do { \
     if ((handle) != NULL && (handle) != INVALID_HANDLE_VALUE) { \
@@ -56,8 +56,8 @@
 } while(0)
 
   /**
-   * @brief °²È«ÊÍ·ÅÄÚ´æ²¢ÖÃ¿ÕÖ¸Õë
-   * @param ptr ÒªÊÍ·ÅµÄÄÚ´æÖ¸Õë
+   * @brief å®‰å…¨é‡Šæ”¾å†…å­˜å¹¶ç½®ç©ºæŒ‡é’ˆ
+   * @param ptr è¦é‡Šæ”¾çš„å†…å­˜æŒ‡é’ˆ
    */
 #define BB_SAFE_FREE(ptr) do { \
     if ((ptr) != NULL) { \
