@@ -1,54 +1,54 @@
 /**
  * @file bb_server.h
- * @brief TCP·şÎñÆ÷¹«¹²½Ó¿Ú
+ * @brief TCPæœåŠ¡å™¨å…¬å…±æ¥å£
  * @version 2.0
  * @date 2024
- * @note Í³Ò»Ê¹ÓÃ¿í×Ö·û(WCHAR)ÒÔÌá¸ßWindowsÆ½Ì¨¼æÈİĞÔ
+ * @note ç»Ÿä¸€ä½¿ç”¨å®½å­—ç¬¦(WCHAR)ä»¥æé«˜Windowså¹³å°å…¼å®¹æ€§
  */
 
 #ifndef BB_SERVER_H
 #define BB_SERVER_H
 
+#include "bb_common.h"
 #include "bb_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    // ==================== ·şÎñÆ÷¹«¹²½Ó¿Úº¯Êı ====================
+    // ==================== æœåŠ¡å™¨å…¬å…±æ¥å£å‡½æ•° ====================
 
     /**
-     * @brief ¼ÓÔØ·şÎñÆ÷¿â£¨³õÊ¼»¯Winsock£©
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
+     * @brief åŠ è½½æœåŠ¡å™¨åº“ï¼ˆåˆå§‹åŒ–Winsockï¼‰
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
      */
-    int WINAPI BB_Server_Load();
-
-
-    /**
-     * @brief ³õÊ¼»¯·şÎñÆ÷¿â
-     * @param threadCount ¹¤×÷Ïß³ÌÊıÁ¿£¬Îª0Ê±×Ô¶¯¸ù¾İCPUºËĞÄÊı¼ÆËã
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
-     * @note ´Ëº¯ÊıÊÇÏß³Ì°²È«µÄ£¬¿É¶à´Îµ÷ÓÃ
-     */
-    int WINAPI BB_Server_Initialize(DWORD threadCount);
+    BB_NET_API int WINAPI BB_Server_Load();
 
     /**
-     * @brief ´´½¨TCP·şÎñÆ÷
-     * @param port ·şÎñÆ÷¼àÌı¶Ë¿Ú
-     * @param acceptCallback ½ÓÊÜĞÂÁ¬½Ó»Øµ÷º¯Êı
-     * @param recvCallback ½ÓÊÕÊı¾İ»Øµ÷º¯Êı
-     * @param closeCallback Á¬½Ó¹Ø±Õ»Øµ÷º¯Êı
-     * @param bindIP °ó¶¨IPµØÖ·£¬NULL±íÊ¾°ó¶¨ËùÓĞµØÖ·
-     * @param postAcceptCount Ô¤Í¶µİµÄAccept²Ù×÷ÊıÁ¿
-     * @param reuseAddr ÊÇ·ñÆôÓÃµØÖ·ÖØÓÃ
-     * @param noDelay ÊÇ·ñ½ûÓÃNagleËã·¨
-     * @param socketBufferSize Ì×½Ó×Ö»º³åÇø´óĞ¡
-     * @param useIPv6 ÊÇ·ñÊ¹ÓÃIPv6
-     * @param bufferSize ½ÓÊÕ»º³åÇø´óĞ¡
-     * @param maxPacketSize ×î´óÊı¾İ°ü´óĞ¡
-     * @return ³É¹¦·µ»Ø·şÎñÆ÷¾ä±ú£¬Ê§°Ü·µ»ØNULL
+     * @brief åˆå§‹åŒ–æœåŠ¡å™¨åº“
+     * @param threadCount å·¥ä½œçº¿ç¨‹æ•°é‡ï¼Œä¸º0æ—¶è‡ªåŠ¨æ ¹æ®CPUæ ¸å¿ƒæ•°è®¡ç®—
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
+     * @note æ­¤å‡½æ•°æ˜¯çº¿ç¨‹å®‰å…¨çš„ï¼Œå¯å¤šæ¬¡è°ƒç”¨
      */
-    HBBSERVER WINAPI BB_Server_Create(USHORT port,
+    BB_NET_API int WINAPI BB_Server_Initialize(DWORD threadCount);
+
+    /**
+     * @brief åˆ›å»ºTCPæœåŠ¡å™¨
+     * @param port æœåŠ¡å™¨ç›‘å¬ç«¯å£
+     * @param acceptCallback æ¥å—æ–°è¿æ¥å›è°ƒå‡½æ•°
+     * @param recvCallback æ¥æ”¶æ•°æ®å›è°ƒå‡½æ•°
+     * @param closeCallback è¿æ¥å…³é—­å›è°ƒå‡½æ•°
+     * @param bindIP ç»‘å®šIPåœ°å€ï¼ŒNULLè¡¨ç¤ºç»‘å®šæ‰€æœ‰åœ°å€
+     * @param postAcceptCount é¢„æŠ•é€’çš„Acceptæ“ä½œæ•°é‡
+     * @param reuseAddr æ˜¯å¦å¯ç”¨åœ°å€é‡ç”¨
+     * @param noDelay æ˜¯å¦ç¦ç”¨Nagleç®—æ³•
+     * @param socketBufferSize å¥—æ¥å­—ç¼“å†²åŒºå¤§å°
+     * @param useIPv6 æ˜¯å¦ä½¿ç”¨IPv6
+     * @param bufferSize æ¥æ”¶ç¼“å†²åŒºå¤§å°
+     * @param maxPacketSize æœ€å¤§æ•°æ®åŒ…å¤§å°
+     * @return æˆåŠŸè¿”å›æœåŠ¡å™¨å¥æŸ„ï¼Œå¤±è´¥è¿”å›NULL
+     */
+    BB_NET_API HBBSERVER WINAPI BB_Server_Create(USHORT port,
         BB_SERVER_ACCEPT_CALLBACK acceptCallback,
         BB_SERVER_RECV_CALLBACK recvCallback,
         BB_SERVER_CLOSE_CALLBACK closeCallback,
@@ -62,127 +62,138 @@ extern "C" {
         DWORD maxPacketSize);
 
     /**
-     * @brief ·şÎñÆ÷·¢ËÍÊı¾İµ½¿Í»§¶Ë
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @param data Òª·¢ËÍµÄÊı¾İ
-     * @param size Êı¾İ´óĞ¡£¨×Ö½Ú£©
-     * @return ³É¹¦·µ»ØTRUE£¬Ê§°Ü·µ»ØFALSE
+     * @brief æœåŠ¡å™¨å‘é€æ•°æ®åˆ°å®¢æˆ·ç«¯
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @param data è¦å‘é€çš„æ•°æ®
+     * @param size æ•°æ®å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+     * @return æˆåŠŸè¿”å›TRUEï¼Œå¤±è´¥è¿”å›FALSE
      */
-    BOOL WINAPI BB_Server_Send(HBBCCLIENT client, LPCVOID data, ULONG size);
+    BB_NET_API BOOL WINAPI BB_Server_Send(HBBCCLIENT client, LPCVOID data, ULONG size);
 
     /**
-     * @brief ¶Ï¿ª¿Í»§¶ËÁ¬½Ó
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @return ³É¹¦·µ»ØTRUE£¬Ê§°Ü·µ»ØFALSE
+     * @brief æ–­å¼€å®¢æˆ·ç«¯è¿æ¥
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @return æˆåŠŸè¿”å›TRUEï¼Œå¤±è´¥è¿”å›FALSE
      */
-    BOOL WINAPI BB_Server_Disconnect(HBBCCLIENT client);
+    BB_NET_API BOOL WINAPI BB_Server_Disconnect(HBBCCLIENT client);
 
     /**
-     * @brief ¹Ø±Õ·şÎñÆ÷
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @return ³É¹¦·µ»ØTRUE£¬Ê§°Ü·µ»ØFALSE
+     * @brief å…³é—­æœåŠ¡å™¨
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @return æˆåŠŸè¿”å›TRUEï¼Œå¤±è´¥è¿”å›FALSE
      */
-    BOOL WINAPI BB_Server_Close(HBBSERVER server);
+    BB_NET_API BOOL WINAPI BB_Server_Close(HBBSERVER server);
 
     /**
-     * @brief »ñÈ¡·şÎñÆ÷±¾µØIPµØÖ·
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @return ³É¹¦Ê±·µ»Ø°üº¬IPµØÖ·µÄ¿í×Ö·û´®Ö¸Õë£¬Ê§°Ü·µ»ØNULL
-     * @note ·µ»ØµÄ×Ö·û´®±ØĞëÊ¹ÓÃ BB_FreeString º¯ÊıÊÍ·Å
+     * @brief è·å–æœåŠ¡å™¨æœ¬åœ°IPåœ°å€
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @return æˆåŠŸæ—¶è¿”å›åŒ…å«IPåœ°å€çš„å®½å­—ç¬¦ä¸²æŒ‡é’ˆï¼Œå¤±è´¥è¿”å›NULL
+     * @note è¿”å›çš„å­—ç¬¦ä¸²å¿…é¡»ä½¿ç”¨ BB_FreeString å‡½æ•°é‡Šæ”¾
      */
-    WCHAR* WINAPI BB_Server_GetLocalIP(HBBSERVER server);
+    BB_NET_API WCHAR* WINAPI BB_Server_GetLocalIP(HBBSERVER server);
 
     /**
-     * @brief »ñÈ¡·şÎñÆ÷±¾µØ¶Ë¿Ú
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @return ¶Ë¿ÚºÅ£¬Ê§°Ü·µ»Ø0
+     * @brief è·å–æœåŠ¡å™¨æœ¬åœ°ç«¯å£
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @return ç«¯å£å·ï¼Œå¤±è´¥è¿”å›0
      */
-    USHORT WINAPI BB_Server_GetLocalPort(HBBSERVER server);
+    BB_NET_API USHORT WINAPI BB_Server_GetLocalPort(HBBSERVER server);
 
     /**
-     * @brief ÉèÖÃ·şÎñÆ÷ÔËĞĞ×´Ì¬
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @param isRunning ÔËĞĞ×´Ì¬
+     * @brief è®¾ç½®æœåŠ¡å™¨è¿è¡ŒçŠ¶æ€
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @param isRunning è¿è¡ŒçŠ¶æ€
      */
-    void WINAPI BB_Server_SetRunning(HBBSERVER server, BOOL isRunning);
+    BB_NET_API void WINAPI BB_Server_SetRunning(HBBSERVER server, BOOL isRunning);
 
     /**
-     * @brief ÉèÖÃ·şÎñÆ÷±êÊ¶¼ü
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @param key ±êÊ¶¼ü
+     * @brief è®¾ç½®æœåŠ¡å™¨æ ‡è¯†é”®
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @param key æ ‡è¯†é”®
      */
-    void WINAPI BB_Server_SetKey(HBBSERVER server, int key);
+    BB_NET_API void WINAPI BB_Server_SetKey(HBBSERVER server, int key);
 
     /**
-     * @brief »ñÈ¡·şÎñÆ÷±êÊ¶¼ü
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @return ±êÊ¶¼ü
+     * @brief è·å–æœåŠ¡å™¨æ ‡è¯†é”®
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @return æ ‡è¯†é”®
      */
-    int WINAPI BB_Server_GetKey(HBBSERVER server);
+    BB_NET_API int WINAPI BB_Server_GetKey(HBBSERVER server);
 
     /**
-     * @brief ÉèÖÃAccept»Øµ÷º¯Êı
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @param callback »Øµ÷º¯Êı
+     * @brief è®¾ç½®Acceptå›è°ƒå‡½æ•°
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @param callback å›è°ƒå‡½æ•°
      */
-    void WINAPI BB_Server_SetAcceptCallback(HBBSERVER server, BB_SERVER_ACCEPT_CALLBACK callback);
+    BB_NET_API void WINAPI BB_Server_SetAcceptCallback(HBBSERVER server, BB_SERVER_ACCEPT_CALLBACK callback);
 
     /**
-     * @brief ÉèÖÃRecv»Øµ÷º¯Êı
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @param callback »Øµ÷º¯Êı
+     * @brief è®¾ç½®Recvå›è°ƒå‡½æ•°
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @param callback å›è°ƒå‡½æ•°
      */
-    void WINAPI BB_Server_SetRecvCallback(HBBSERVER server, BB_SERVER_RECV_CALLBACK callback);
+    BB_NET_API void WINAPI BB_Server_SetRecvCallback(HBBSERVER server, BB_SERVER_RECV_CALLBACK callback);
 
     /**
-     * @brief ÉèÖÃClose»Øµ÷º¯Êı
-     * @param server ·şÎñÆ÷¾ä±ú
-     * @param callback »Øµ÷º¯Êı
+     * @brief è®¾ç½®Closeå›è°ƒå‡½æ•°
+     * @param server æœåŠ¡å™¨å¥æŸ„
+     * @param callback å›è°ƒå‡½æ•°
      */
-    void WINAPI BB_Server_SetCloseCallback(HBBSERVER server, BB_SERVER_CLOSE_CALLBACK callback);
+    BB_NET_API void WINAPI BB_Server_SetCloseCallback(HBBSERVER server, BB_SERVER_CLOSE_CALLBACK callback);
 
     /**
-     * @brief ÉèÖÃ¿Í»§¶Ë±êÊ¶¼ü
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @param key ±êÊ¶¼ü
+     * @brief è®¾ç½®å®¢æˆ·ç«¯æ ‡è¯†é”®
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @param key æ ‡è¯†é”®
      */
-    void WINAPI BB_Server_SetClientKey(HBBCCLIENT client, HBBCLIENT key);
+    BB_NET_API void WINAPI BB_Server_SetClientKey(HBBCCLIENT client, HBBCLIENT key);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶Ë±êÊ¶¼ü
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @return ±êÊ¶¼ü
+     * @brief è·å–å®¢æˆ·ç«¯æ ‡è¯†é”®
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @return æ ‡è¯†é”®
      */
-    HBBCLIENT WINAPI BB_Server_GetClientKey(HBBCCLIENT client);
+    BB_NET_API HBBCLIENT WINAPI BB_Server_GetClientKey(HBBCCLIENT client);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶ËÁ¬½ÓÊ±¼ä
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @return Á¬½ÓÊ±¼ä´Á£¨ºÁÃë£©
+     * @brief è·å–å®¢æˆ·ç«¯è¿æ¥æ—¶é—´
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @return è¿æ¥æ—¶é—´æˆ³ï¼ˆæ¯«ç§’ï¼‰
      */
-    DWORD64 WINAPI BB_Server_GetClientConnectTime(HBBCCLIENT client);
+    BB_NET_API DWORD64 WINAPI BB_Server_GetClientConnectTime(HBBCCLIENT client);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶ËIPµØÖ·£¨¿í×Ö·û°æ±¾£©
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @return IPµØÖ·¿í×Ö·û´®£¬Ê§°Ü·µ»ØNULL
-     * @note ·µ»ØµÄ×Ö·û´®±ØĞëÊ¹ÓÃ BB_FreeString º¯ÊıÊÍ·Å
+     * @brief è·å–å®¢æˆ·ç«¯IPåœ°å€ï¼ˆå®½å­—ç¬¦ç‰ˆæœ¬ï¼‰
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @return IPåœ°å€å®½å­—ç¬¦ä¸²ï¼Œå¤±è´¥è¿”å›NULL
+     * @note è¿”å›çš„å­—ç¬¦ä¸²å¿…é¡»ä½¿ç”¨ BB_FreeString å‡½æ•°é‡Šæ”¾
      */
-    WCHAR* WINAPI BB_Server_GetClientIPW(HBBCCLIENT client);
+    BB_NET_API WCHAR* WINAPI BB_Server_GetClientIPW(HBBCCLIENT client);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶Ë¶Ë¿Ú
-     * @param client ¿Í»§¶ËÁ¬½Ó¾ä±ú
-     * @return ¶Ë¿ÚºÅ£¬Ê§°Ü·µ»Ø0
+     * @brief è·å–å®¢æˆ·ç«¯ç«¯å£
+     * @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+     * @return ç«¯å£å·ï¼Œå¤±è´¥è¿”å›0
      */
-    USHORT WINAPI BB_Server_GetClientPort(HBBCCLIENT client);
+    BB_NET_API USHORT WINAPI BB_Server_GetClientPort(HBBCCLIENT client);
+
+
+    /*
+	* @brief è®¾ç½®å®¢æˆ·ç«¯åŒæ­¥å­—ç¬¦æ ‡å¿—
+	* @param client å®¢æˆ·ç«¯è¿æ¥å¥æŸ„
+	* @param nsynchar æ˜¯å¦å¯ç”¨åŒæ­¥å­—ç¬¦æ ‡å¿—
+	* @note å¯ç”¨åï¼ŒæœåŠ¡å™¨åœ¨æ¥æ”¶æ•°æ®æ—¶ä¼šç­‰å¾…å®Œæ•´çš„å­—ç¬¦è¾¹ç•Œï¼Œé€‚ç”¨äºæ–‡æœ¬åè®®
+	* @note é»˜è®¤æƒ…å†µä¸‹ï¼Œè¯¥æ ‡å¿—ä¸ºFALSE
+	* @return æ— è¿”å›å€¼
+    */
+    BB_NET_API void WINAPI BB_Server_SetClientSynchar(HBBCCLIENT client, BOOL nsynchar);
 
     /**
-     * @brief ÇåÀí·şÎñÆ÷¿â
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
-     * @note µ÷ÓÃ´Ëº¯Êıºó£¬ËùÓĞ·şÎñÆ÷¹¦ÄÜ½«²»¿ÉÓÃ
+     * @brief æ¸…ç†æœåŠ¡å™¨åº“
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
+     * @note è°ƒç”¨æ­¤å‡½æ•°åï¼Œæ‰€æœ‰æœåŠ¡å™¨åŠŸèƒ½å°†ä¸å¯ç”¨
      */
-    int WINAPI BB_Server_Cleanup();
+    BB_NET_API int WINAPI BB_Server_Cleanup();
 
 #ifdef __cplusplus
 }
