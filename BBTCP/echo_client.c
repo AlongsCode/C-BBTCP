@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file echo_client.c
  * @brief 回声客户端示例
  * @version 1.0
@@ -30,8 +30,8 @@ void __stdcall ClientCallback(HBBCLIENT client, int eventType, const char* data,
         printf("[客户端] 收到服务器回复: %.*s\n", size, data);
 
         // 收到回复后3秒关闭连接
-        Sleep(3000);
-        BB_Client_Close(client);
+        //Sleep(3000);
+        //BB_Client_Close(client);
         break;
 
     case BB_EVENT_DISCONNECTED:
@@ -40,7 +40,7 @@ void __stdcall ClientCallback(HBBCLIENT client, int eventType, const char* data,
     }
 }
 
-int main() {
+int demo_clinet() {
     printf("=== BB网络库回声客户端示例 ===\n");
 
     // 1. 加载客户端库
@@ -63,7 +63,7 @@ int main() {
     HBBCLIENT client = BB_Client_Connect(
         ClientCallback,     // 回调函数
         L"127.0.0.1",      // 服务器IP
-        8080,              // 服务器端口
+        23461,              // 服务器端口
         5000,              // 超时时间(毫秒)
         4096,              // 缓冲区大小
         0,                 // 最大数据包大小
@@ -91,4 +91,8 @@ int main() {
     printf("[系统] 客户端已退出\n");
 
     return 0;
+}
+
+int main() {
+	return demo_clinet();
 }
