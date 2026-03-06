@@ -1,74 +1,74 @@
 /**
  * @file bb_server.c
- * @brief TCP·şÎñÆ÷ÊµÏÖ
+ * @brief TCPæœåŠ¡å™¨å®ç°
  * @version 2.0
  * @date 2024
- * @note Ê¹ÓÃIOCPÍê³É¶Ë¿ÚÄ£ĞÍ£¬Ö§³Ö¸ß²¢·¢Á¬½Ó
+ * @note ä½¿ç”¨IOCPå®Œæˆç«¯å£æ¨¡å‹ï¼Œæ”¯æŒé«˜å¹¶å‘è¿æ¥
  */
-#include "bb_internal.h"  // °üº¬ÄÚ²¿Í·ÎÄ¼ş
+#include "bb_internal.h"  // åŒ…å«å†…éƒ¨å¤´æ–‡ä»¶
 #include "bb_server.h"
 #include "bb_utils.h"
 #include <assert.h>
 
- // ==================== ·şÎñÆ÷È«¾Ö±äÁ¿ ====================
+ // ==================== æœåŠ¡å™¨å…¨å±€å˜é‡ ====================
 
- /** @brief ·şÎñÆ÷½ÓÊÕIOCP¾ä±ú */
+ /** @brief æœåŠ¡å™¨æ¥æ”¶IOCPå¥æŸ„ */
 static HANDLE g_bbServerRecvIOCP = NULL;
 
-/** @brief ·şÎñÆ÷½ÓÊÜIOCP¾ä±ú */
+/** @brief æœåŠ¡å™¨æ¥å—IOCPå¥æŸ„ */
 static HANDLE g_bbServerAcceptIOCP = NULL;
 
-/** @brief ·şÎñÆ÷ÔËĞĞ±êÖ¾ */
+/** @brief æœåŠ¡å™¨è¿è¡Œæ ‡å¿— */
 static volatile BOOL g_bbServerRunning = FALSE;
 
-/** @brief ·şÎñÆ÷¹¤×÷Ïß³ÌÊıÁ¿ */
+/** @brief æœåŠ¡å™¨å·¥ä½œçº¿ç¨‹æ•°é‡ */
 static DWORD g_bbServerThreadCount = 0;
 
-// ==================== ÄÚ²¿Êı¾İ½á¹¹¶¨Òå ====================
+// ==================== å†…éƒ¨æ•°æ®ç»“æ„å®šä¹‰ ====================
 
-/** @brief TCP·şÎñÆ÷ÄÚ²¿½á¹¹ */
+/** @brief TCPæœåŠ¡å™¨å†…éƒ¨ç»“æ„ */
 typedef struct BB_TCP_SERVER {
-    SOCKET socket;                      /**< ¼àÌıÌ×½Ó×Ö */
-    int postAcceptCount;                /**< Ô¤Í¶µİAcceptÊıÁ¿ */
-    BOOL reuseAddress;                  /**< µØÖ·ÖØÓÃ±êÖ¾ */
-    BOOL noDelay;                       /**< NagleËã·¨½ûÓÃ±êÖ¾ */
-    int socketBufferSize;               /**< Ì×½Ó×Ö»º³åÇø´óĞ¡ */
-    BOOL isRunning;                     /**< ÔËĞĞ×´Ì¬ */
-    int serverKey;                      /**< ·şÎñÆ÷±êÊ¶¼ü */
-    BOOL isIPv6;                        /**< IPv6±êÖ¾ */
-    ULONG bufferSize;                   /**< »º³åÇø´óĞ¡ */
-    ULONG maxPacketSize;                /**< ×î´óÊı¾İ°ü´óĞ¡ */
+    SOCKET socket;                      /**< ç›‘å¬å¥—æ¥å­— */
+    int postAcceptCount;                /**< é¢„æŠ•é€’Acceptæ•°é‡ */
+    BOOL reuseAddress;                  /**< åœ°å€é‡ç”¨æ ‡å¿— */
+    BOOL noDelay;                       /**< Nagleç®—æ³•ç¦ç”¨æ ‡å¿— */
+    int socketBufferSize;               /**< å¥—æ¥å­—ç¼“å†²åŒºå¤§å° */
+    BOOL isRunning;                     /**< è¿è¡ŒçŠ¶æ€ */
+    int serverKey;                      /**< æœåŠ¡å™¨æ ‡è¯†é”® */
+    BOOL isIPv6;                        /**< IPv6æ ‡å¿— */
+    ULONG bufferSize;                   /**< ç¼“å†²åŒºå¤§å° */
+    ULONG maxPacketSize;                /**< æœ€å¤§æ•°æ®åŒ…å¤§å° */
 
-    BB_SERVER_ACCEPT_CALLBACK acceptCallback;   /**< ½ÓÊÜÁ¬½Ó»Øµ÷ */
-    BB_SERVER_RECV_CALLBACK recvCallback;       /**< ½ÓÊÕÊı¾İ»Øµ÷ */
-    BB_SERVER_CLOSE_CALLBACK closeCallback;     /**< Á¬½Ó¹Ø±Õ»Øµ÷ */
-    LPFN_ACCEPTEX acceptExFunc;                 /**< AcceptExº¯ÊıÖ¸Õë */
+    BB_SERVER_ACCEPT_CALLBACK acceptCallback;   /**< æ¥å—è¿æ¥å›è°ƒ */
+    BB_SERVER_RECV_CALLBACK recvCallback;       /**< æ¥æ”¶æ•°æ®å›è°ƒ */
+    BB_SERVER_CLOSE_CALLBACK closeCallback;     /**< è¿æ¥å…³é—­å›è°ƒ */
+    LPFN_ACCEPTEX acceptExFunc;                 /**< AcceptExå‡½æ•°æŒ‡é’ˆ */
 } BB_TCP_SERVER, * P_BB_TCP_SERVER;
 
-/** @brief ·şÎñÆ÷¶Ë¿Í»§¶ËÁ¬½Ó½á¹¹ */
+/** @brief æœåŠ¡å™¨ç«¯å®¢æˆ·ç«¯è¿æ¥ç»“æ„ */
 typedef struct BB_TCP_SERVER_CLIENT {
-    SOCKET socket;                      /**< ¿Í»§¶ËÌ×½Ó×Ö */
-    HBBCLIENT clientKey;                /**< ¿Í»§¶Ë±êÊ¶¼ü */
-    DWORD64 connectTime;                /**< Á¬½ÓÊ±¼ä */
-    struct BB_TCP_SERVER_OPERATION* operation;  /**< ¹ØÁªµÄ²Ù×÷½á¹¹ */
-    BOOL isDisconnected;                /**< ¶Ï¿ªÁ¬½Ó±êÖ¾ */
-    BOOL isIPv6;                        /**< IPv6±êÖ¾ */
+    SOCKET socket;                      /**< å®¢æˆ·ç«¯å¥—æ¥å­— */
+    HBBCLIENT clientKey;                /**< å®¢æˆ·ç«¯æ ‡è¯†é”® */
+    DWORD64 connectTime;                /**< è¿æ¥æ—¶é—´ */
+    struct BB_TCP_SERVER_OPERATION* operation;  /**< å…³è”çš„æ“ä½œç»“æ„ */
+    BOOL isDisconnected;                /**< æ–­å¼€è¿æ¥æ ‡å¿— */
+    BOOL isIPv6;                        /**< IPv6æ ‡å¿— */
 } BB_TCP_SERVER_CLIENT, * P_BB_TCP_SERVER_CLIENT;
 
-/** @brief ·şÎñÆ÷²Ù×÷½á¹¹ */
+/** @brief æœåŠ¡å™¨æ“ä½œç»“æ„ */
 typedef struct BB_TCP_SERVER_OPERATION {
-    OVERLAPPED overlapped;              /**< ÖØµşIO½á¹¹ */
-    int operationType;                  /**< ²Ù×÷ÀàĞÍ */
-    DWORD dataLength;                   /**< Êı¾İ³¤¶È */
-    DWORD bytesTransferred;             /**< ´«Êä×Ö½ÚÊı */
-    DWORD bufferCapacity;               /**< »º³åÇøÈİÁ¿ */
-    DWORD bufferOffset;                 /**< »º³åÇøÆ«ÒÆ */
-    char* buffer;                       /**< Êı¾İ»º³åÇø */
-    P_BB_TCP_SERVER server;             /**< ¹ØÁªµÄ·şÎñÆ÷ */
-    P_BB_TCP_SERVER_CLIENT client;      /**< ¹ØÁªµÄ¿Í»§¶Ë */
+    OVERLAPPED overlapped;              /**< é‡å IOç»“æ„ */
+    int operationType;                  /**< æ“ä½œç±»å‹ */
+    DWORD dataLength;                   /**< æ•°æ®é•¿åº¦ */
+    DWORD bytesTransferred;             /**< ä¼ è¾“å­—èŠ‚æ•° */
+    DWORD bufferCapacity;               /**< ç¼“å†²åŒºå®¹é‡ */
+    DWORD bufferOffset;                 /**< ç¼“å†²åŒºåç§» */
+    char* buffer;                       /**< æ•°æ®ç¼“å†²åŒº */
+    P_BB_TCP_SERVER server;             /**< å…³è”çš„æœåŠ¡å™¨ */
+    P_BB_TCP_SERVER_CLIENT client;      /**< å…³è”çš„å®¢æˆ·ç«¯ */
 } BB_TCP_SERVER_OPERATION, * P_BB_TCP_SERVER_OPERATION;
 
-// ==================== ¾²Ì¬º¯ÊıÉùÃ÷ ====================
+// ==================== é™æ€å‡½æ•°å£°æ˜ ====================
 
 static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVER server);
 static void BB_Server_PostAccept(P_BB_TCP_SERVER server);
@@ -92,17 +92,17 @@ static BOOL BB_Server_SendData(P_BB_TCP_SERVER_CLIENT client, const char* data, 
 static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param);
 static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param);
 
-// ==================== ·şÎñÆ÷ºËĞÄº¯ÊıÊµÏÖ ====================
+// ==================== æœåŠ¡å™¨æ ¸å¿ƒå‡½æ•°å®ç° ====================
 
 /**
- * @brief ´´½¨¿Í»§¶ËÁ¬½Ó½á¹¹
+ * @brief åˆ›å»ºå®¢æˆ·ç«¯è¿æ¥ç»“æ„
  */
 static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVER server) {
     if (client == NULL || server == NULL) {
         return FALSE;
     }
 
-    // ³õÊ¼»¯¿Í»§¶Ë½á¹¹
+    // åˆå§‹åŒ–å®¢æˆ·ç«¯ç»“æ„
     ZeroMemory(client, sizeof(BB_TCP_SERVER_CLIENT));
     client->isDisconnected = FALSE;
     client->socket = INVALID_SOCKET;
@@ -110,13 +110,13 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
     client->connectTime = 0;
     client->isIPv6 = server->isIPv6;
 
-    // ´´½¨¿Í»§¶ËÌ×½Ó×Ö
+    // åˆ›å»ºå®¢æˆ·ç«¯å¥—æ¥å­—
     client->socket = WSASocket(client->isIPv6 ? AF_INET6 : AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (client->socket == INVALID_SOCKET) {
         return FALSE;
     }
 
-    // ÉèÖÃÌ×½Ó×ÖÑ¡Ïî
+    // è®¾ç½®å¥—æ¥å­—é€‰é¡¹
     setsockopt(client->socket, SOL_SOCKET, SO_SNDBUF, (char*)&server->socketBufferSize, sizeof(server->socketBufferSize));
     setsockopt(client->socket, SOL_SOCKET, SO_RCVBUF, (char*)&server->socketBufferSize, sizeof(server->socketBufferSize));
 
@@ -130,7 +130,7 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
         setsockopt(client->socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuseOpt, sizeof(reuseOpt));
     }
 
-    // ´´½¨²Ù×÷½á¹¹
+    // åˆ›å»ºæ“ä½œç»“æ„
     client->operation = (P_BB_TCP_SERVER_OPERATION)BB_Alloc(sizeof(BB_TCP_SERVER_OPERATION));
     if (client->operation == NULL) {
         BB_SAFE_CLOSE_SOCKET(client->socket);
@@ -139,12 +139,12 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
 
     ZeroMemory(client->operation, sizeof(BB_TCP_SERVER_OPERATION));
 
-    // ¼ÆËãµØÖ·³¤¶ÈºÍ»º³åÇø´óĞ¡
+    // è®¡ç®—åœ°å€é•¿åº¦å’Œç¼“å†²åŒºå¤§å°
     DWORD addressLength = client->isIPv6 ?
         sizeof(SOCKADDR_IN6) + 16 :
         sizeof(SOCKADDR_IN) + 16;
 
-    // È·±£»º³åÇø×ã¹»´óÒÔÈİÄÉAcceptExËùĞèµÄµØÖ·ĞÅÏ¢
+    // ç¡®ä¿ç¼“å†²åŒºè¶³å¤Ÿå¤§ä»¥å®¹çº³AcceptExæ‰€éœ€çš„åœ°å€ä¿¡æ¯
     DWORD requiredBufferSize = max(addressLength * 2, server->bufferSize);
 
     client->operation->bufferCapacity = requiredBufferSize;
@@ -158,9 +158,9 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
     client->operation->bufferOffset = 0;
     client->operation->server = server;
     client->operation->client = client;
-    client->operation->operationType = 1;  // Accept×´Ì¬
+    client->operation->operationType = 1;  // AcceptçŠ¶æ€
 
-    // ¹ØÁªµ½Recv IOCP
+    // å…³è”åˆ°Recv IOCP
     if (CreateIoCompletionPort((HANDLE)client->socket, g_bbServerRecvIOCP, 0, 0) != g_bbServerRecvIOCP) {
         BB_SAFE_FREE(client->operation->buffer);
         BB_SAFE_FREE(client->operation);
@@ -168,7 +168,7 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
         return FALSE;
     }
 
-    // Í¶µİAcceptEx²Ù×÷
+    // æŠ•é€’AcceptExæ“ä½œ
     DWORD bytesReceived = 0;
     if (server->acceptExFunc(server->socket, client->socket, client->operation->buffer,
         0, addressLength, addressLength, &bytesReceived,
@@ -186,11 +186,11 @@ static BOOL BB_Server_CreateClient(P_BB_TCP_SERVER_CLIENT client, P_BB_TCP_SERVE
 }
 
 /**
- * @brief Í¶µİAccept²Ù×÷
+ * @brief æŠ•é€’Acceptæ“ä½œ
  */
 static void BB_Server_PostAccept(P_BB_TCP_SERVER server) {
     BOOL success = FALSE;
-    int maxAttempts = 10; // ·ÀÖ¹ÎŞÏŞÑ­»·
+    int maxAttempts = 10; // é˜²æ­¢æ— é™å¾ªç¯
 
     while (!success && maxAttempts-- > 0) {
         P_BB_TCP_SERVER_CLIENT client = (P_BB_TCP_SERVER_CLIENT)BB_Alloc(sizeof(BB_TCP_SERVER_CLIENT));
@@ -206,7 +206,7 @@ static void BB_Server_PostAccept(P_BB_TCP_SERVER server) {
 }
 
 /**
- * @brief ÄÚ²¿·şÎñÆ÷´´½¨º¯Êı
+ * @brief å†…éƒ¨æœåŠ¡å™¨åˆ›å»ºå‡½æ•°
  */
 static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
     USHORT port,
@@ -227,7 +227,7 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
         return FALSE;
     }
 
-    // ³õÊ¼»¯·şÎñÆ÷²ÎÊı
+    // åˆå§‹åŒ–æœåŠ¡å™¨å‚æ•°
     server->postAcceptCount = postAcceptCount;
     server->reuseAddress = reuseAddr;
     server->noDelay = noDelay;
@@ -241,7 +241,7 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
     server->maxPacketSize = maxPacketSize;
     server->isIPv6 = useIPv6;
 
-    // »ñÈ¡AcceptExº¯ÊıÖ¸Õë
+    // è·å–AcceptExå‡½æ•°æŒ‡é’ˆ
     DWORD bytesReturned = 0;
     GUID acceptExGuid = WSAID_ACCEPTEX;
     if (WSAIoctl(server->socket, SIO_GET_EXTENSION_FUNCTION_POINTER,
@@ -252,7 +252,7 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
         return FALSE;
     }
 
-    // ÉèÖÃÌ×½Ó×ÖÑ¡Ïî
+    // è®¾ç½®å¥—æ¥å­—é€‰é¡¹
     setsockopt(server->socket, SOL_SOCKET, SO_SNDBUF, (char*)&server->socketBufferSize, sizeof(server->socketBufferSize));
     setsockopt(server->socket, SOL_SOCKET, SO_RCVBUF, (char*)&server->socketBufferSize, sizeof(server->socketBufferSize));
 
@@ -266,13 +266,13 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
         setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuseOpt, sizeof(reuseOpt));
     }
 
-    // ¹ØÁªµ½Accept IOCP
+    // å…³è”åˆ°Accept IOCP
     if (CreateIoCompletionPort((HANDLE)server->socket, g_bbServerAcceptIOCP, 0, 0) != g_bbServerAcceptIOCP) {
         BB_SAFE_CLOSE_SOCKET(server->socket);
         return FALSE;
     }
 
-    // µØÖ·½âÎöºÍ°ó¶¨
+    // åœ°å€è§£æå’Œç»‘å®š
     ADDRINFOW hints;
     PADDRINFOW result = NULL;
     ZeroMemory(&hints, sizeof(hints));
@@ -285,14 +285,14 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
     ZeroMemory(portStr, sizeof(portStr));
     swprintf_s(portStr, _countof(portStr), L"%u", port);
 
-    // Ê¹ÓÃ GetAddrInfoW ½âÎöµØÖ·
+    // ä½¿ç”¨ GetAddrInfoW è§£æåœ°å€
     int error = GetAddrInfoW(bindIP, portStr, &hints, &result);
     if (error != 0) {
         BB_SAFE_CLOSE_SOCKET(server->socket);
         return FALSE;
     }
 
-    // ³¢ÊÔ°ó¶¨µ½½âÎö³öµÄµØÖ·
+    // å°è¯•ç»‘å®šåˆ°è§£æå‡ºçš„åœ°å€
     BOOL bindSuccess = FALSE;
     for (PADDRINFOW ptr = result; ptr != NULL; ptr = ptr->ai_next) {
         if (bind(server->socket, ptr->ai_addr, (int)ptr->ai_addrlen) == 0) {
@@ -308,13 +308,13 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
         return FALSE;
     }
 
-    // ¿ªÊ¼¼àÌı
+    // å¼€å§‹ç›‘å¬
     if (listen(server->socket, SOMAXCONN) == SOCKET_ERROR) {
         BB_SAFE_CLOSE_SOCKET(server->socket);
         return FALSE;
     }
 
-    // Í¶µİAccept²Ù×÷
+    // æŠ•é€’Acceptæ“ä½œ
     if (server->postAcceptCount <= 0) {
         server->postAcceptCount = 1;
     }
@@ -327,14 +327,14 @@ static BOOL BB_Server_CreateInternal(P_BB_TCP_SERVER server,
 }
 
 /**
- * @brief ´¦Àí½ÓÊÕµ½µÄÊı¾İ
+ * @brief å¤„ç†æ¥æ”¶åˆ°çš„æ•°æ®
  */
 static BOOL BB_Server_ProcessRecvData(P_BB_TCP_SERVER server, P_BB_TCP_SERVER_OPERATION operation) {
     if (operation == NULL || operation->client == NULL) {
         return FALSE;
     }
 
-    operation->operationType = 2; // ÉèÖÃÎª½ÓÊÕ×´Ì¬
+    operation->operationType = 2; // è®¾ç½®ä¸ºæ¥æ”¶çŠ¶æ€
 
     WSABUF wsaBuffer;
     DWORD flags = 0;
@@ -355,7 +355,7 @@ static BOOL BB_Server_ProcessRecvData(P_BB_TCP_SERVER server, P_BB_TCP_SERVER_OP
 }
 
 /**
- * @brief ÄÚ²¿¹Ø±Õ·şÎñÆ÷
+ * @brief å†…éƒ¨å…³é—­æœåŠ¡å™¨
  */
 static BOOL BB_Server_CloseInternal(P_BB_TCP_SERVER server) {
     if (server == NULL) {
@@ -368,7 +368,7 @@ static BOOL BB_Server_CloseInternal(P_BB_TCP_SERVER server) {
 }
 
 /**
- * @brief ¶Ï¿ª¿Í»§¶ËÁ¬½Ó
+ * @brief æ–­å¼€å®¢æˆ·ç«¯è¿æ¥
  */
 static BOOL BB_Server_DisconnectClient(P_BB_TCP_SERVER_CLIENT client) {
     if (client == NULL) {
@@ -382,7 +382,7 @@ static BOOL BB_Server_DisconnectClient(P_BB_TCP_SERVER_CLIENT client) {
 }
 
 /**
- * @brief ·¢ËÍÊı¾İµ½¿Í»§¶Ë
+ * @brief å‘é€æ•°æ®åˆ°å®¢æˆ·ç«¯
  */
 static BOOL BB_Server_SendData(P_BB_TCP_SERVER_CLIENT client, const char* data, DWORD length) {
     if (client == NULL || data == NULL || length == 0 || client->socket == INVALID_SOCKET) {
@@ -404,10 +404,10 @@ static BOOL BB_Server_SendData(P_BB_TCP_SERVER_CLIENT client, const char* data, 
     return TRUE;
 }
 
-// ==================== IOCP¹¤×÷Ïß³ÌÊµÏÖ ====================
+// ==================== IOCPå·¥ä½œçº¿ç¨‹å®ç° ====================
 
 /**
- * @brief Accept IOCP¹¤×÷Ïß³Ì
+ * @brief Accept IOCPå·¥ä½œçº¿ç¨‹
  */
 static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
     while (g_bbServerRunning) {
@@ -422,7 +422,7 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
             }
 
             int error = WSAGetLastError();
-            if (error == 995) { // ²Ù×÷ÒÑÖĞÖ¹
+            if (error == 995) { // æ“ä½œå·²ä¸­æ­¢
                 if (operation->client != NULL) {
                     operation->client->clientKey = NULL;
                     BB_SAFE_CLOSE_SOCKET(operation->client->socket);
@@ -455,7 +455,7 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
         }
 
         if (operation->operationType != 1) {
-            // Á¬½Ó¹Ø±Õ
+            // è¿æ¥å…³é—­
             if (operation->server->closeCallback != NULL && operation->client->socket != INVALID_SOCKET) {
                 if (!operation->client->isDisconnected) {
                     operation->server->closeCallback((HBBSERVER)operation->server, (HBBCCLIENT)operation->client);
@@ -472,10 +472,10 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
             continue;
         }
 
-        // Í¶µİĞÂµÄAccept
+        // æŠ•é€’æ–°çš„Accept
         BB_Server_PostAccept(operation->server);
 
-        // ¼ì²é·şÎñÆ÷ÊÇ·ñÍ£Ö¹
+        // æ£€æŸ¥æœåŠ¡å™¨æ˜¯å¦åœæ­¢
         if (!operation->server->isRunning) {
             operation->client->clientKey = NULL;
             BB_SAFE_CLOSE_SOCKET(operation->client->socket);
@@ -487,12 +487,12 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
             continue;
         }
 
-        // ¸üĞÂÁ¬½ÓÊ±¼ä
+        // æ›´æ–°è¿æ¥æ—¶é—´
         operation->client->connectTime = BB_GetTickCount64();
         setsockopt(operation->client->socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,
             (char*)&operation->server->socket, sizeof(operation->server->socket));
 
-        // µ÷ÓÃAccept»Øµ÷
+        // è°ƒç”¨Acceptå›è°ƒ
         if (operation->server->acceptCallback != NULL) {
             operation->server->acceptCallback((HBBSERVER)operation->server, (HBBCCLIENT)operation->client);
             if (operation->client->socket == INVALID_SOCKET) {
@@ -506,7 +506,7 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
             }
         }
 
-        // ¿ªÊ¼½ÓÊÕÊı¾İ
+        // å¼€å§‹æ¥æ”¶æ•°æ®
         if (!BB_Server_ProcessRecvData(operation->server, operation)) {
             if (operation->server->closeCallback != NULL && operation->client->socket != INVALID_SOCKET) {
                 if (!operation->client->isDisconnected) {
@@ -529,7 +529,7 @@ static DWORD WINAPI BB_Server_AcceptIOCPWorker(LPVOID param) {
 }
 
 /**
- * @brief Recv IOCP¹¤×÷Ïß³Ì
+ * @brief Recv IOCPå·¥ä½œçº¿ç¨‹
  */
 static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
     while (g_bbServerRunning) {
@@ -544,7 +544,7 @@ static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
             }
 
 
-            if (WSAGetLastError() == 995) { // ²Ù×÷ÒÑÖĞÖ¹
+            if (WSAGetLastError() == 995) { // æ“ä½œå·²ä¸­æ­¢
                 if (operation->client != NULL) {
                     operation->client->clientKey = NULL;
                     BB_SAFE_CLOSE_SOCKET(operation->client->socket);
@@ -577,7 +577,7 @@ static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
         }
 
         if (bytesTransferred == 0) {
-            // Á¬½Ó¶Ï¿ª
+            // è¿æ¥æ–­å¼€
             if (operation->server->closeCallback != NULL && operation->client->socket != INVALID_SOCKET) {
                 if (!operation->client->isDisconnected) {
                     operation->server->closeCallback((HBBSERVER)operation->server, (HBBCCLIENT)operation->client);
@@ -594,7 +594,7 @@ static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
             continue;
         }
 
-        // ´¦Àí½ÓÊÕµ½µÄÊı¾İ
+        // å¤„ç†æ¥æ”¶åˆ°çš„æ•°æ®
         //operation->bytesTransferred = bytesTransferred;
 
         if (operation->server->recvCallback != NULL) {
@@ -612,7 +612,7 @@ static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
             continue;
         }
 
-        // ¼ÌĞø½ÓÊÕÊı¾İ
+        // ç»§ç»­æ¥æ”¶æ•°æ®
         if (!BB_Server_ProcessRecvData(operation->server, operation)) {
             if (operation->server->closeCallback != NULL && operation->client->socket != INVALID_SOCKET) {
                 if (!operation->client->isDisconnected) {
@@ -634,7 +634,7 @@ static DWORD WINAPI BB_Server_RecvIOCPWorker(LPVOID param) {
     return 0;
 }
 
-// ==================== ·şÎñÆ÷¹«¹²½Ó¿Úº¯ÊıÊµÏÖ ====================
+// ==================== æœåŠ¡å™¨å…¬å…±æ¥å£å‡½æ•°å®ç° ====================
 
 int WINAPI BB_Server_Load() {
     if (g_bbServerAcceptIOCP != NULL) {
@@ -676,10 +676,10 @@ int WINAPI BB_Server_Free() {
 
 int WINAPI BB_Server_Initialize(DWORD threadCount) {
     if (g_bbServerThreadCount > 0) {
-        return 1; // ÒÑ¾­³õÊ¼»¯
+        return 1; // å·²ç»åˆå§‹åŒ–
     }
 
-    // ÉèÖÃÏß³ÌÊı
+    // è®¾ç½®çº¿ç¨‹æ•°
     if (threadCount == 0) {
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
@@ -692,7 +692,7 @@ int WINAPI BB_Server_Initialize(DWORD threadCount) {
         g_bbServerThreadCount = threadCount;
     }
 
-    // ´´½¨¹¤×÷Ïß³Ì£¨Ã¿¸öIOCP´´½¨ÏàÍ¬ÊıÁ¿µÄÏß³Ì£©
+    // åˆ›å»ºå·¥ä½œçº¿ç¨‹ï¼ˆæ¯ä¸ªIOCPåˆ›å»ºç›¸åŒæ•°é‡çš„çº¿ç¨‹ï¼‰
     DWORD threadsPerIOCP = g_bbServerThreadCount / 2;
     if (threadsPerIOCP < 1) threadsPerIOCP = 1;
 
@@ -720,9 +720,7 @@ HBBSERVER WINAPI BB_Server_Create(USHORT port,
     DWORD bufferSize,
     DWORD maxPacketSize) {
 
-    if (acceptCallback == NULL || recvCallback == NULL || closeCallback == NULL) {
-        return NULL;
-    }
+    
 
     P_BB_TCP_SERVER server = (P_BB_TCP_SERVER)BB_Alloc(sizeof(BB_TCP_SERVER));
     if (server == NULL) {
@@ -963,6 +961,13 @@ USHORT WINAPI BB_Server_GetClientPort(HBBCCLIENT client) {
 
     return 0;
 }
+
+void WINAPI BB_Server_SetClientSynchar(HBBCCLIENT client, BOOL nsynchar) {
+    P_BB_TCP_SERVER_CLIENT internalClient = (P_BB_TCP_SERVER_CLIENT)client;
+    unsigned long ul = nsynchar ? 0 : 1;
+    ioctlsocket(internalClient->socket, FIONBIO, (unsigned long*)&ul);
+}
+
 
 int WINAPI BB_Server_Cleanup() {
     g_bbServerRunning = FALSE;
