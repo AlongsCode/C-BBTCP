@@ -1,53 +1,54 @@
 /**
  * @file bb_client.h
- * @brief TCP¿Í»§¶Ë¹«¹²½Ó¿Ú
+ * @brief TCPå®¢æˆ·ç«¯å…¬å…±æ¥å£
  * @version 2.0
  * @date 2024
- * @note Í³Ò»Ê¹ÓÃ¿í×Ö·û(WCHAR)ÒÔÌá¸ßWindowsÆ½Ì¨¼æÈİĞÔ
+ * @note ç»Ÿä¸€ä½¿ç”¨å®½å­—ç¬¦(WCHAR)ä»¥æé«˜Windowså¹³å°å…¼å®¹æ€§
  */
 
 #ifndef BB_CLIENT_H
 #define BB_CLIENT_H
 
+#include "bb_common.h"
 #include "bb_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    // ==================== ¿Í»§¶Ë¹«¹²½Ó¿Úº¯Êı ====================
+    // ==================== å®¢æˆ·ç«¯å…¬å…±æ¥å£å‡½æ•° ====================
 
     /**
-     * @brief ¼ÓÔØ¿Í»§¶Ë¿â£¨³õÊ¼»¯Winsock£©
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
+     * @brief åŠ è½½å®¢æˆ·ç«¯åº“ï¼ˆåˆå§‹åŒ–Winsockï¼‰
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
      */
-    int WINAPI BB_Client_Load();
+    BB_NET_API int WINAPI BB_Client_Load();
 
     /**
-     * @brief ³õÊ¼»¯¿Í»§¶Ë¿â
-     * @param threadCount ¹¤×÷Ïß³ÌÊıÁ¿£¬Îª0Ê±×Ô¶¯¸ù¾İCPUºËĞÄÊı¼ÆËã
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
-     * @note ´Ëº¯ÊıÊÇÏß³Ì°²È«µÄ£¬¿É¶à´Îµ÷ÓÃ
+     * @brief åˆå§‹åŒ–å®¢æˆ·ç«¯åº“
+     * @param threadCount å·¥ä½œçº¿ç¨‹æ•°é‡ï¼Œä¸º0æ—¶è‡ªåŠ¨æ ¹æ®CPUæ ¸å¿ƒæ•°è®¡ç®—
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
+     * @note æ­¤å‡½æ•°æ˜¯çº¿ç¨‹å®‰å…¨çš„ï¼Œå¯å¤šæ¬¡è°ƒç”¨
      */
-    int WINAPI BB_Client_Initialize(DWORD threadCount);
+    BB_NET_API int WINAPI BB_Client_Initialize(DWORD threadCount);
 
     /**
-     * @brief ´´½¨TCP¿Í»§¶ËÁ¬½Ó
-     * @param callback ÊÂ¼ş»Øµ÷º¯Êı
-     * @param serverIP ·şÎñÆ÷IPµØÖ·»òÓòÃû£¨¿í×Ö·û£©
-     * @param serverPort ·şÎñÆ÷¶Ë¿Ú
-     * @param timeout Á¬½Ó³¬Ê±Ê±¼ä£¨ºÁÃë£©
-     * @param bufferSize ½ÓÊÕ»º³åÇø´óĞ¡£¨×Ö½Ú£©
-     * @param maxPacketSize ×î´óÊı¾İ°ü´óĞ¡£¨×Ö½Ú£©
-     * @param proxyType ´úÀíÀàĞÍ£ºBB_PROXY_NONE, BB_PROXY_SOCKS4, BB_PROXY_SOCKS5, BB_PROXY_HTTP
-     * @param proxyIP ´úÀí·şÎñÆ÷IPµØÖ·£¨¿í×Ö·û£©
-     * @param proxyPort ´úÀí·şÎñÆ÷¶Ë¿Ú
-     * @param proxyAccount ´úÀíÈÏÖ¤ÕËºÅ£¨¿í×Ö·û£©
-     * @param proxyPassword ´úÀíÈÏÖ¤ÃÜÂë£¨¿í×Ö·û£©
-     * @param useIPv6 ÊÇ·ñÊ¹ÓÃIPv6
-     * @return ³É¹¦·µ»Ø¿Í»§¶Ë¾ä±ú£¬Ê§°Ü·µ»ØNULL
+     * @brief åˆ›å»ºTCPå®¢æˆ·ç«¯è¿æ¥
+     * @param callback äº‹ä»¶å›è°ƒå‡½æ•°
+     * @param serverIP æœåŠ¡å™¨IPåœ°å€æˆ–åŸŸåï¼ˆå®½å­—ç¬¦ï¼‰
+     * @param serverPort æœåŠ¡å™¨ç«¯å£
+     * @param timeout è¿æ¥è¶…æ—¶æ—¶é—´ï¼ˆæ¯«ç§’ï¼‰
+     * @param bufferSize æ¥æ”¶ç¼“å†²åŒºå¤§å°ï¼ˆå­—èŠ‚ï¼‰
+     * @param maxPacketSize æœ€å¤§æ•°æ®åŒ…å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+     * @param proxyType ä»£ç†ç±»å‹ï¼šBB_PROXY_NONE, BB_PROXY_SOCKS4, BB_PROXY_SOCKS5, BB_PROXY_HTTP
+     * @param proxyIP ä»£ç†æœåŠ¡å™¨IPåœ°å€ï¼ˆå®½å­—ç¬¦ï¼‰
+     * @param proxyPort ä»£ç†æœåŠ¡å™¨ç«¯å£
+     * @param proxyAccount ä»£ç†è®¤è¯è´¦å·ï¼ˆå®½å­—ç¬¦ï¼‰
+     * @param proxyPassword ä»£ç†è®¤è¯å¯†ç ï¼ˆå®½å­—ç¬¦ï¼‰
+     * @param useIPv6 æ˜¯å¦ä½¿ç”¨IPv6
+     * @return æˆåŠŸè¿”å›å®¢æˆ·ç«¯å¥æŸ„ï¼Œå¤±è´¥è¿”å›NULL
      */
-    HBBCLIENT WINAPI BB_Client_Connect(BB_CLIENT_EVENT_CALLBACK callback,
+    BB_NET_API HBBCLIENT WINAPI BB_Client_Connect(BB_CLIENT_EVENT_CALLBACK callback,
         LPCWSTR serverIP,
         USHORT serverPort,
         int timeout,
@@ -61,56 +62,56 @@ extern "C" {
         BOOL useIPv6);
 
     /**
-     * @brief ·¢ËÍÊı¾İ
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @param data Òª·¢ËÍµÄÊı¾İ
-     * @param size Êı¾İ´óĞ¡£¨×Ö½Ú£©
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
+     * @brief å‘é€æ•°æ®
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @param data è¦å‘é€çš„æ•°æ®
+     * @param size æ•°æ®å¤§å°ï¼ˆå­—èŠ‚ï¼‰
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
      */
-    int WINAPI BB_Client_Send(HBBCLIENT client, const char* data, ULONG size);
+    BB_NET_API int WINAPI BB_Client_Send(HBBCLIENT client, const char* data, ULONG size);
 
     /**
-     * @brief ¹Ø±Õ¿Í»§¶ËÁ¬½Ó
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @return ³É¹¦·µ»ØTRUE£¬Ê§°Ü·µ»ØFALSE
+     * @brief å…³é—­å®¢æˆ·ç«¯è¿æ¥
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @return æˆåŠŸè¿”å›TRUEï¼Œå¤±è´¥è¿”å›FALSE
      */
-    BOOL WINAPI BB_Client_Close(HBBCLIENT client);
+    BB_NET_API BOOL WINAPI BB_Client_Close(HBBCLIENT client);
 
     /**
-     * @brief ÉèÖÃ¿Í»§¶ËÓÃ»§×Ö·û´®Êı¾İ
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @param userData ÓÃ»§×Ö·û´®Êı¾İ£¨¿í×Ö·û£©
+     * @brief è®¾ç½®å®¢æˆ·ç«¯ç”¨æˆ·å­—ç¬¦ä¸²æ•°æ®
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @param userData ç”¨æˆ·å­—ç¬¦ä¸²æ•°æ®ï¼ˆå®½å­—ç¬¦ï¼‰
      */
-    void WINAPI BB_Client_SetUserString(HBBCLIENT client, LPCWSTR userData);
+    BB_NET_API void WINAPI BB_Client_SetUserString(HBBCLIENT client, LPCWSTR userData);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶ËÓÃ»§×Ö·û´®Êı¾İ
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @return ÓÃ»§×Ö·û´®Êı¾İ£¨¿í×Ö·û£©
-     * @note ·µ»ØµÄ×Ö·û´®±ØĞëÊ¹ÓÃ BB_FreeString º¯ÊıÊÍ·Å
+     * @brief è·å–å®¢æˆ·ç«¯ç”¨æˆ·å­—ç¬¦ä¸²æ•°æ®
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @return ç”¨æˆ·å­—ç¬¦ä¸²æ•°æ®ï¼ˆå®½å­—ç¬¦ï¼‰
+     * @note è¿”å›çš„å­—ç¬¦ä¸²å¿…é¡»ä½¿ç”¨ BB_FreeString å‡½æ•°é‡Šæ”¾
      */
-    WCHAR* WINAPI BB_Client_GetUserString(HBBCLIENT client);
+    BB_NET_API WCHAR* WINAPI BB_Client_GetUserString(HBBCLIENT client);
 
     /**
-     * @brief ÉèÖÃ¿Í»§¶ËÓÃ»§ÕûĞÍÊı¾İ
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @param userData ÓÃ»§ÕûĞÍÊı¾İ
+     * @brief è®¾ç½®å®¢æˆ·ç«¯ç”¨æˆ·æ•´å‹æ•°æ®
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @param userData ç”¨æˆ·æ•´å‹æ•°æ®
      */
-    void WINAPI BB_Client_SetUserInt(HBBCLIENT client, int userData);
+    BB_NET_API void WINAPI BB_Client_SetUserInt(HBBCLIENT client, int userData);
 
     /**
-     * @brief »ñÈ¡¿Í»§¶ËÓÃ»§ÕûĞÍÊı¾İ
-     * @param client ¿Í»§¶Ë¾ä±ú
-     * @return ÓÃ»§ÕûĞÍÊı¾İ
+     * @brief è·å–å®¢æˆ·ç«¯ç”¨æˆ·æ•´å‹æ•°æ®
+     * @param client å®¢æˆ·ç«¯å¥æŸ„
+     * @return ç”¨æˆ·æ•´å‹æ•°æ®
      */
-    int WINAPI BB_Client_GetUserInt(HBBCLIENT client);
+    BB_NET_API int WINAPI BB_Client_GetUserInt(HBBCLIENT client);
 
     /**
-     * @brief ÇåÀí¿Í»§¶Ë¿â
-     * @return ³É¹¦·µ»Ø1£¬Ê§°Ü·µ»Ø0
-     * @note µ÷ÓÃ´Ëº¯Êıºó£¬ËùÓĞ¿Í»§¶Ë¹¦ÄÜ½«²»¿ÉÓÃ
+     * @brief æ¸…ç†å®¢æˆ·ç«¯åº“
+     * @return æˆåŠŸè¿”å›1ï¼Œå¤±è´¥è¿”å›0
+     * @note è°ƒç”¨æ­¤å‡½æ•°åï¼Œæ‰€æœ‰å®¢æˆ·ç«¯åŠŸèƒ½å°†ä¸å¯ç”¨
      */
-    int WINAPI BB_Client_Cleanup();
+    BB_NET_API int WINAPI BB_Client_Cleanup();
 
 #ifdef __cplusplus
 }
