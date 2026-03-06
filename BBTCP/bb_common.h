@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file bb_common.h
  * @brief BB网络库公共定义
  * @version 2.0
@@ -15,7 +15,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+//#ifdef _WINDLL
+//#define BB_NET_API __declspec(dllexport)
+//#else
+//#define BB_NET_API 
+//#endif
+#define BB_NET_API 
     // ==================== 句柄类型定义 ====================
 
     /** @brief 客户端连接句柄 */
