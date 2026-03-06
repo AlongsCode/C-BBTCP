@@ -1,6 +1,6 @@
 /**
  * @file bb_utils.h
- * @brief BB����⹤�ߺ���
+ * @brief BB网络库工具函数
  * @version 2.0
  * @date 2024
  */
@@ -18,40 +18,40 @@
 extern "C" {
 #endif
 
-    // ==================== �ڴ�������� ====================
+    // ==================== 内存管理函数 ====================
 
     /**
-     * @brief ���䲢�����ڴ�
-     * @param size Ҫ������ڴ��С
-     * @return �ɹ������ڴ�ָ�룬ʧ�ܷ���NULL
+     * @brief 分配并清零内存
+     * @param size 要分配的内存大小
+     * @return 成功返回内存指针，失败返回NULL
      */
     void* BB_Alloc(size_t size);
 
     /**
-     * @brief ���·����ڴ�
-     * @param ptr ԭ�ڴ�ָ��
-     * @param new_size ���ڴ��С
-     * @return �ɹ��������ڴ�ָ�룬ʧ�ܷ���NULL
+     * @brief 重新分配内存
+     * @param ptr 原内存指针
+     * @param new_size 新内存大小
+     * @return 成功返回新内存指针，失败返回NULL
      */
     void* BB_Realloc(void* ptr, size_t new_size);
 
     /**
-     * @brief �ͷ��ڴ棨��ȫ���ɴ���NULL��
-     * @param ptr Ҫ�ͷŵ��ڴ�ָ��
+     * @brief 释放内存（安全，可传入NULL）
+     * @param ptr 要释放的内存指针
      */
     void BB_Free(void* ptr);
 
     /**
-     * @brief �ͷ��ַ����ڴ棨��BB_Free��ͬ���ṩ���廯�ӿڣ�
-     * @param str Ҫ�ͷŵ��ַ���ָ��
+     * @brief 释放字符串内存（与BB_Free相同，提供语义化接口）
+     * @param str 要释放的字符串指针
      */
     void BB_FreeString(void* str);
 
-    // ==================== ���ߺ��� ====================
+    // ==================== 工具函数 ====================
 
     /**
-     * @brief ��ȡ�߾���ʱ�����64λ������49��������⣩
-     * @return ��ǰʱ��������룩
+     * @brief 获取高精度时间戳（64位，避免49天溢出问题）
+     * @return 当前时间戳（毫秒）
      */
     DWORD64 BB_GetTickCount64();
 
