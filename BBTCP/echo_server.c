@@ -1,6 +1,6 @@
 /**
  * @file echo_server.c
- * @brief »ØÉù·şÎñÆ÷Ê¾Àı
+ * @brief å›å£°æœåŠ¡å™¨ç¤ºä¾‹
  * @version 1.0
  * @date 2024
  */
@@ -11,103 +11,106 @@
 #include <windows.h>
 #include "bb_server.h"
 
- // ·şÎñÆ÷½ÓÊÜÁ¬½Ó»Øµ÷
+ // æœåŠ¡å™¨æ¥å—è¿æ¥å›è°ƒ
 void __stdcall AcceptCallback(HBBSERVER server, HBBCCLIENT client) {
     WCHAR* clientIP = BB_Server_GetClientIPW(client);
     USHORT clientPort = BB_Server_GetClientPort(client);
 
     if (clientIP != NULL) {
-        printf("[·şÎñÆ÷] ¿Í»§¶ËÁ¬½Ó: %ls:%d\n", clientIP, clientPort);
+        printf("[æœåŠ¡å™¨] å®¢æˆ·ç«¯è¿æ¥: %ls:%d\n", clientIP, clientPort);
         BB_Free(clientIP);
     }
 }
 
-// ·şÎñÆ÷½ÓÊÕÊı¾İ»Øµ÷
+// æœåŠ¡å™¨æ¥æ”¶æ•°æ®å›è°ƒ
 void __stdcall RecvCallback(HBBSERVER server, HBBCCLIENT client, const char* data, ULONG size) {
     WCHAR* clientIP = BB_Server_GetClientIPW(client);
 
     if (clientIP != NULL) {
-        printf("[·şÎñÆ÷] ÊÕµ½À´×Ô %ls µÄÏûÏ¢: %.*s\n", clientIP, size, data);
+        printf("[æœåŠ¡å™¨] æ”¶åˆ°æ¥è‡ª %ls çš„æ¶ˆæ¯: %.*s\n", clientIP, size, data);
         BB_Free(clientIP);
     }
 
-    // »ØÉù£º½«ÊÕµ½µÄÊı¾İÔ­Ñù·¢»Ø
+    // å›å£°ï¼šå°†æ”¶åˆ°çš„æ•°æ®åŸæ ·å‘å›
     BB_Server_Send(client, data, size);
-    printf("[·şÎñÆ÷] ÒÑ»ØÉù»Ø¸´¿Í»§¶Ë\n");
+    printf("[æœåŠ¡å™¨] å·²å›å£°å›å¤å®¢æˆ·ç«¯\n");
 }
 
-// ·şÎñÆ÷Á¬½Ó¹Ø±Õ»Øµ÷
+// æœåŠ¡å™¨è¿æ¥å…³é—­å›è°ƒ
 void __stdcall CloseCallback(HBBSERVER server, HBBCCLIENT client) {
     WCHAR* clientIP = BB_Server_GetClientIPW(client);
 
     if (clientIP != NULL) {
-        printf("[·şÎñÆ÷] ¿Í»§¶Ë¶Ï¿ª: %ls\n", clientIP);
+        printf("[æœåŠ¡å™¨] å®¢æˆ·ç«¯æ–­å¼€: %ls\n", clientIP);
         BB_Free(clientIP);
     }
 }
 
-int main() {
-    printf("=== BBÍøÂç¿â»ØÉù·şÎñÆ÷Ê¾Àı ===\n");
+int demo_sever() {
+    printf("=== BBç½‘ç»œåº“å›å£°æœåŠ¡å™¨ç¤ºä¾‹ ===\n");
 
-    // 1. ¼ÓÔØ·şÎñÆ÷¿â
+    // 1. åŠ è½½æœåŠ¡å™¨åº“
     if (!BB_Server_Load()) {
-        printf("´íÎó: ÎŞ·¨¼ÓÔØ·şÎñÆ÷¿â\n");
+        printf("é”™è¯¯: æ— æ³•åŠ è½½æœåŠ¡å™¨åº“\n");
         return -1;
     }
-    printf("[ÏµÍ³] ·şÎñÆ÷¿â¼ÓÔØ³É¹¦\n");
+    printf("[ç³»ç»Ÿ] æœåŠ¡å™¨åº“åŠ è½½æˆåŠŸ\n");
 
-    // 2. ³õÊ¼»¯·şÎñÆ÷
+    // 2. åˆå§‹åŒ–æœåŠ¡å™¨
     if (!BB_Server_Initialize(0)) {
-        printf("´íÎó: ·şÎñÆ÷³õÊ¼»¯Ê§°Ü\n");
+        printf("é”™è¯¯: æœåŠ¡å™¨åˆå§‹åŒ–å¤±è´¥\n");
         BB_Server_Cleanup();
         return -1;
     }
-    printf("[ÏµÍ³] ·şÎñÆ÷³õÊ¼»¯³É¹¦\n");
+    printf("[ç³»ç»Ÿ] æœåŠ¡å™¨åˆå§‹åŒ–æˆåŠŸ\n");
 
-    // 3. ´´½¨·şÎñÆ÷
-    printf("[·şÎñÆ÷] ÕıÔÚÆô¶¯·şÎñÆ÷£¬¶Ë¿Ú 8080...\n");
+    // 3. åˆ›å»ºæœåŠ¡å™¨
+    printf("[æœåŠ¡å™¨] æ­£åœ¨å¯åŠ¨æœåŠ¡å™¨ï¼Œç«¯å£ 8080...\n");
     HBBSERVER server = BB_Server_Create(
-        23461,               // ¼àÌı¶Ë¿Ú
-        AcceptCallback,     // ½ÓÊÜÁ¬½Ó»Øµ÷
-        RecvCallback,       // ½ÓÊÕÊı¾İ»Øµ÷
-        CloseCallback,      // Á¬½Ó¹Ø±Õ»Øµ÷
-        NULL,               // °ó¶¨IP (NULL±íÊ¾ËùÓĞIP)
-        10,                 // Ô¤Í¶µİAcceptÊıÁ¿
-        TRUE,               // µØÖ·ÖØÓÃ
-        TRUE,               // ½ûÓÃNagleËã·¨
-        4096,               // Ì×½Ó×Ö»º³åÇø´óĞ¡
-        FALSE,              // ²»Ê¹ÓÃIPv6
-        4096,               // ½ÓÊÕ»º³åÇø´óĞ¡
-        0                   // ×î´óÊı¾İ°ü´óĞ¡
+        23461,               // ç›‘å¬ç«¯å£
+        NULL,     // æ¥å—è¿æ¥å›è°ƒ
+        NULL, //RecvCallback,       // æ¥æ”¶æ•°æ®å›è°ƒ
+        NULL, //CloseCallback,      // è¿æ¥å…³é—­å›è°ƒ
+        NULL,               // ç»‘å®šIP (NULLè¡¨ç¤ºæ‰€æœ‰IP)
+        10,                 // é¢„æŠ•é€’Acceptæ•°é‡
+        TRUE,               // åœ°å€é‡ç”¨
+        TRUE,               // ç¦ç”¨Nagleç®—æ³•
+        4096,               // å¥—æ¥å­—ç¼“å†²åŒºå¤§å°
+        FALSE,              // ä¸ä½¿ç”¨IPv6
+        4096,               // æ¥æ”¶ç¼“å†²åŒºå¤§å°
+        0                   // æœ€å¤§æ•°æ®åŒ…å¤§å°
     );
 
     if (server == NULL) {
-        printf("´íÎó: ´´½¨·şÎñÆ÷Ê§°Ü\n");
+        printf("é”™è¯¯: åˆ›å»ºæœåŠ¡å™¨å¤±è´¥\n");
         BB_Server_Cleanup();
         return -1;
     }
 
-    // »ñÈ¡·şÎñÆ÷ĞÅÏ¢
+    // è·å–æœåŠ¡å™¨ä¿¡æ¯
     WCHAR* localIP = BB_Server_GetLocalIP(server);
     USHORT localPort = BB_Server_GetLocalPort(server);
 
     if (localIP != NULL) {
-        printf("[·şÎñÆ÷] ·şÎñÆ÷ÒÑÆô¶¯: %ls:%d\n", localIP, localPort);
+        printf("[æœåŠ¡å™¨] æœåŠ¡å™¨å·²å¯åŠ¨: %ls:%d\n", localIP, localPort);
         BB_Free(localIP);
     }
 
-    printf("[ÏµÍ³] ·şÎñÆ÷ÔËĞĞÖĞ£¬°´ÈÎÒâ¼üÍ£Ö¹...\n");
+    printf("[ç³»ç»Ÿ] æœåŠ¡å™¨è¿è¡Œä¸­ï¼ŒæŒ‰ä»»æ„é”®åœæ­¢...\n");
 
-    // 4. µÈ´ıÓÃ»§ÊäÈëÍ£Ö¹·şÎñÆ÷
+    // 4. ç­‰å¾…ç”¨æˆ·è¾“å…¥åœæ­¢æœåŠ¡å™¨
     getchar();
 
-    // 5. ¹Ø±Õ·şÎñÆ÷
+    // 5. å…³é—­æœåŠ¡å™¨
     BB_Server_Close(server);
-    printf("[·şÎñÆ÷] ·şÎñÆ÷ÒÑ¹Ø±Õ\n");
+    printf("[æœåŠ¡å™¨] æœåŠ¡å™¨å·²å…³é—­\n");
 
-    // 6. ÇåÀí×ÊÔ´
+    // 6. æ¸…ç†èµ„æº
     BB_Server_Cleanup();
-    printf("[ÏµÍ³] ·şÎñÆ÷ÒÑÍË³ö\n");
+    printf("[ç³»ç»Ÿ] æœåŠ¡å™¨å·²é€€å‡º\n");
 
     return 0;
 }
+
+
+
