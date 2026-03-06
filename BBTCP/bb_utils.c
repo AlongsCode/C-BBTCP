@@ -1,15 +1,15 @@
 /**
  * @file bb_utils.c
- * @brief ÍøÂç¿â¹¤¾ßº¯ÊıÊµÏÖ
+ * @brief ç½‘ç»œåº“å·¥å…·å‡½æ•°å®ç°
  * @version 2.0
  * @date 2024
- * @note Ìá¹©ÄÚ´æ¹ÜÀí¡¢×Ö·û´®×ª»»¡¢Ïß³Ì°²È«µÈ»ù´¡¹¦ÄÜ
+ * @note æä¾›å†…å­˜ç®¡ç†ã€å­—ç¬¦ä¸²è½¬æ¢ã€çº¿ç¨‹å®‰å…¨ç­‰åŸºç¡€åŠŸèƒ½
  */
-#include "bb_internal.h"  // °üº¬ÄÚ²¿Í·ÎÄ¼ş
+#include "bb_internal.h"  // åŒ…å«å†…éƒ¨å¤´æ–‡ä»¶
 #include "bb_utils.h"
 #include <assert.h>
 
- // ==================== ÄÚ´æ¹ÜÀíº¯ÊıÊµÏÖ ====================
+ // ==================== å†…å­˜ç®¡ç†å‡½æ•°å®ç° ====================
 
 void* BB_Alloc(size_t size) {
     if (size == 0) {
@@ -18,7 +18,7 @@ void* BB_Alloc(size_t size) {
 
     void* ptr = malloc(size);
     if (ptr != NULL) {
-        memset(ptr, 0, size); // ×Ô¶¯ÇåÁã
+        memset(ptr, 0, size); // è‡ªåŠ¨æ¸…é›¶
     }
     return ptr;
 }
@@ -31,7 +31,7 @@ void* BB_Realloc(void* ptr, size_t new_size) {
 
     void* new_ptr = realloc(ptr, new_size);
     if (new_ptr != NULL && ptr == NULL) {
-        // Èç¹ûÊÇĞÂ·ÖÅä£¬È·±£ÇåÁã
+        // å¦‚æœæ˜¯æ–°åˆ†é…ï¼Œç¡®ä¿æ¸…é›¶
         memset(new_ptr, 0, new_size);
     }
     return new_ptr;
@@ -47,7 +47,7 @@ void BB_FreeString(void* str) {
     BB_Free(str);
 }
 
-// ==================== ¹¤¾ßº¯ÊıÊµÏÖ ====================
+// ==================== å·¥å…·å‡½æ•°å®ç° ====================
 
 DWORD64 BB_GetTickCount64() {
     static LARGE_INTEGER frequency = { 0 };
