@@ -34,7 +34,7 @@
 
 初始化时可根据需要设定线程数，推荐设为 0 以启用自动核心数分配。
 
-C
+
 
 // 客户端加载与启动  
 BB\_Client\_Load();  
@@ -44,7 +44,7 @@ BB\_Client\_Initialize(0);
 
 通过简洁的 API 快速实例化一个服务器监听：
 
-C
+
 
 HBBSERVER server \= BB\_Server\_Create(  
     8080, AcceptCallback, RecvCallback, CloseCallback,   
@@ -55,7 +55,7 @@ HBBSERVER server \= BB\_Server\_Create(
 
 使用标准回调处理数据包接收：
 
-C
+
 
 void \_\_stdcall RecvCallback(HBBSERVER server, HBBCCLIENT client, const char\* data, ULONG size) {  
     // 处理逻辑：例如回声服务  
